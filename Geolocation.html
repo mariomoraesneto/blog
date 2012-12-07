@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>HTML 5 - Geolocalização e API de Mapa Google</title>
+
+    <!-- Adiciona arquivo externo de javascript - API de Mapa do Google -->
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <style type="text/css">
+        body
+        {
+            font: normal normal 15px Georgia, 'Palatino Linotype', Palatino, serif;
+            color: #333;
+        }
+
+        #hr
+        {
+            width: 60%;
+            height: 1px;
+            border-bottom: 1px solid #333;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #conteudo
+        {
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        #divMapa
+        {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<!-- Quando carrega a página, chama a função recuperaGeolocalizacao() do script javascript da página.
+    Esta função também pode ser chamada por botões. -->
+<body onload="recuperaGeolocalizacao();">
+    <div id="conteudo">
+        <h3>HTML 5 - Geolocalização e API de Mapa Google</h3>
+        <div id="hr"></div>
+
+        <!-- No P id = mensagens é apresentada mensagem de sucesso ou de erro, quando o caso -->
+        <p id="mensagens">Esta é a sua geolocalização:</p>
+        <p>
+            <!-- Em caso de sucesso, nos itens latitude e longitude serão adicionados os dados de geolocalização -->
+            <span id="latitude"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="longitude"></span>
+        </p>
+        
+        <!-- div que recebe o mapa através do uso da API Google -->
+        <div id="divMapa"></div>
+
+
+        <!-- Inicia os scripts: o que recupera a geolocalização e o que exibe o mapa -->
+        <script type="text/javascript">
+
+            var mensagens = document.getElementById("mensagens");
+
+            // Função que recupera a Geolocalizacao, utilizando funções do próprio navegador.
+            function recuperaGeolocalizacao() {
+
+                // Se o navegador suporta geolocalização, recupera as informações e chama a função que vai usá-las para exibir o mapa;
+                if (navigator.geolocation) {
+                    //Sucesso
+                    navigator.geolocation.getCurrentPosition(MostraLocalizacao, Erro);
+                }
+                    //Erro
+                else {
+                    mensagens.innerHTML = "A geolocalização não é suportada pelo seu navegador.";
+                }
+            }
+
+            // Essa é a função que recebe os dados de Geolocalização, no objeto position
+            function MostraLocalizacao(position) {
+
+                // Recupera a latitude
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+
+                latitude = document.getElementById('latitude')
+                latitude.innerHTML = "Latitude: " + lat;
+
+                longitude = document.getElementById('longitude')
+                longitude.innerHTML = "Longitude: " + lon;
+
+                latlon = new google.maps.LatLng(lat, lon)
+                divMapa = document.getElementById('divMapa')
+                divMapa.style.height = '250px';
+                divMapa.style.width = '500px';
+
+                var Opcoes = {
+                    center: latlon, zoom: 15,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapTypeControl: true,
+                    navigationControlOptions: { style: google.maps.NavigationControlStyle.SMALL }
+                };
+                var map = new google.maps.Map(document.getElementById("divMapa"), Opcoes);
+                var marcador = new google.maps.Marker({ position: latlon, map: map, title: "Você está aqui" });
+            }
+
+            function Erro(error) {
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        mensagens.innerHTML = "A permissão para buscar Geolocalização foi negada pelo navegador.<br /><br />Tente gerenciar as configurações de compartilhar local."
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        mensagens.innerHTML = "Sua localização está indisponível."
+                        break;
+                    case error.TIMEOUT:
+                        mensagens.innerHTML = "A busca pela sua localização excedeu o tempo limite."
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        mensagens.innerHTML = "Ocorreu um erro desconhecido."
+                        break;
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
